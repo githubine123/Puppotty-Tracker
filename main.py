@@ -1,6 +1,7 @@
 import datetime
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import simpledialog
 
 class PupPottyTracker:
     def __init__(self):
@@ -41,8 +42,21 @@ class PupPottyTracker:
             messagebox.showerror("Error", "Dog name is required.")
             return
 
+        # Ask user for the time of the event
+        time_str = simpledialog.askstring("Input Time", "Enter the time of the event (HH:MM):")
+        try:
+            if time_str:
+                # Combine current date with user-provided time
+                current_date = datetime.datetime.now().date()
+                event_time = datetime.datetime.strptime(f"{current_date} {time_str}", "%Y-%m-%d %H:%M")
+            else:
+                event_time = datetime.datetime.now()
+        except ValueError:
+            messagebox.showerror("Error", "Invalid time format. Please use HH:MM.")
+            return
+
         event = {
-            "timestamp": datetime.datetime.now(),
+            "timestamp": event_time,
             "event_type": event_type,
             "dog_name": dog_name,
             "notes": notes
@@ -56,7 +70,7 @@ class PupPottyTracker:
         """Save logs to a text file."""
         with open("dog_potty_logs.txt", "w") as file:
             for log in self.logs:
-                timestamp = log["timestamp"].strftime("%Y-%m-%d %H:%M:%S")
+                timestamp = log["timestamp"].strftime("%d/%m/%y %H:%M")
                 file.write(f"[{timestamp}] {log['dog_name']} - {log['event_type'].capitalize()} ({log['notes']})\n")
 
     def view_logs(self):
@@ -71,7 +85,7 @@ class PupPottyTracker:
 
         log_text = "Potty Logs:\n"
         for log in filtered_logs:
-            timestamp = log["timestamp"].strftime("%Y-%m-%d %H:%M:%S")
+            timestamp = log["timestamp"].strftime("%d/%m/%y %H:%M")
             log_text += f"[{timestamp}] {log['dog_name']} - {log['event_type'].capitalize()} ({log['notes']})\n"
 
         log_window = tk.Toplevel(self.root)
