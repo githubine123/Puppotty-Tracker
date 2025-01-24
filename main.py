@@ -9,42 +9,53 @@ class PupPottyTracker:
         self.dog_names = ["Buddy", "Max", "Bella", "Lucy"]  # Predefined dog names
         self.root = tk.Tk()
         self.root.title("PupPotty Tracker")
+        self.root.state("zoomed")  # Make the app fullscreen
 
         self.create_gui()
         self.root.mainloop()
 
     def create_gui(self):
+        # Main Frame to Center Widgets
+        main_frame = tk.Frame(self.root)
+        main_frame.pack(expand=True, fill="both")
+
         # Dog Name Label and Dropdown
-        tk.Label(self.root, text="Dog Name:").grid(row=0, column=0, padx=5, pady=5)
+        tk.Label(main_frame, text="Dog Name:").grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
         self.dog_name_var = tk.StringVar()
-        self.dog_name_dropdown = ttk.Combobox(self.root, textvariable=self.dog_name_var, values=self.dog_names, state="readonly")
-        self.dog_name_dropdown.grid(row=0, column=1, padx=5, pady=5)
+        self.dog_name_dropdown = ttk.Combobox(main_frame, textvariable=self.dog_name_var, values=self.dog_names, state="readonly")
+        self.dog_name_dropdown.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
         # Hour and Minute Dropdowns
-        tk.Label(self.root, text="Hour:").grid(row=1, column=0, padx=5, pady=5)
+        tk.Label(main_frame, text="Hour:").grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
         self.hour_var = tk.StringVar()
-        self.hour_dropdown = ttk.Combobox(self.root, textvariable=self.hour_var, values=[f"{i:02d}" for i in range(24)], state="readonly")
-        self.hour_dropdown.grid(row=1, column=1, padx=5, pady=5)
+        self.hour_dropdown = ttk.Combobox(main_frame, textvariable=self.hour_var, values=[f"{i:02d}" for i in range(24)], state="readonly")
+        self.hour_dropdown.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
 
-        tk.Label(self.root, text="Minute:").grid(row=2, column=0, padx=5, pady=5)
+        tk.Label(main_frame, text="Minute:").grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
         self.minute_var = tk.StringVar()
-        self.minute_dropdown = ttk.Combobox(self.root, textvariable=self.minute_var, values=[f"{i:02d}" for i in range(60)], state="readonly")
-        self.minute_dropdown.grid(row=2, column=1, padx=5, pady=5)
+        self.minute_dropdown = ttk.Combobox(main_frame, textvariable=self.minute_var, values=[f"{i:02d}" for i in range(60)], state="readonly")
+        self.minute_dropdown.grid(row=2, column=1, padx=10, pady=10, sticky="nsew")
 
         # Notes Label and Entry
-        tk.Label(self.root, text="Notes:").grid(row=3, column=0, padx=5, pady=5)
-        self.notes_entry = tk.Entry(self.root)
-        self.notes_entry.grid(row=3, column=1, padx=5, pady=5)
+        tk.Label(main_frame, text="Notes:").grid(row=3, column=0, padx=10, pady=10, sticky="nsew")
+        self.notes_entry = tk.Entry(main_frame)
+        self.notes_entry.grid(row=3, column=1, padx=10, pady=10, sticky="nsew")
 
         # Event Type Buttons
-        tk.Button(self.root, text="Log Pee", command=lambda: self.log_event("pee")).grid(row=4, column=0, padx=5, pady=5)
-        tk.Button(self.root, text="Log Poop", command=lambda: self.log_event("poop")).grid(row=4, column=1, padx=5, pady=5)
+        tk.Button(main_frame, text="Log Pee", command=lambda: self.log_event("pee")).grid(row=4, column=0, padx=10, pady=10, sticky="nsew")
+        tk.Button(main_frame, text="Log Poop", command=lambda: self.log_event("poop")).grid(row=4, column=1, padx=10, pady=10, sticky="nsew")
 
         # View Logs Button
-        tk.Button(self.root, text="View Logs", command=self.view_logs).grid(row=5, column=0, columnspan=2, padx=5, pady=5)
+        tk.Button(main_frame, text="View Logs", command=self.view_logs).grid(row=5, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
 
         # Analyze Patterns Button
-        tk.Button(self.root, text="Analyze Patterns", command=self.analyze_patterns).grid(row=6, column=0, columnspan=2, padx=5, pady=5)
+        tk.Button(main_frame, text="Analyze Patterns", command=self.analyze_patterns).grid(row=6, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+
+        # Configure grid to fill the screen
+        for row in range(7):
+            main_frame.rowconfigure(row, weight=1)
+        for col in range(2):
+            main_frame.columnconfigure(col, weight=1)
 
     def log_event(self, event_type):
         """Log a potty event for a dog."""
