@@ -1,11 +1,12 @@
 import datetime
 import tkinter as tk
 from tkinter import messagebox
-from tkinter import simpledialog
+from tkinter import ttk
 
 class PupPottyTracker:
     def __init__(self):
         self.logs = []  # List to store potty events
+        self.dog_names = ["Buddy", "Max", "Bella", "Lucy"]  # Predefined dog names
         self.root = tk.Tk()
         self.root.title("PupPotty Tracker")
 
@@ -13,46 +14,58 @@ class PupPottyTracker:
         self.root.mainloop()
 
     def create_gui(self):
-        # Dog Name Label and Entry
+        # Dog Name Label and Dropdown
         tk.Label(self.root, text="Dog Name:").grid(row=0, column=0, padx=5, pady=5)
-        self.dog_name_entry = tk.Entry(self.root)
-        self.dog_name_entry.grid(row=0, column=1, padx=5, pady=5)
+        self.dog_name_var = tk.StringVar()
+        self.dog_name_dropdown = ttk.Combobox(self.root, textvariable=self.dog_name_var, values=self.dog_names, state="readonly")
+        self.dog_name_dropdown.grid(row=0, column=1, padx=5, pady=5)
 
-        # Event Type Buttons
-        tk.Button(self.root, text="Log Pee", command=lambda: self.log_event("pee")).grid(row=1, column=0, padx=5, pady=5)
-        tk.Button(self.root, text="Log Poop", command=lambda: self.log_event("poop")).grid(row=1, column=1, padx=5, pady=5)
+        # Hour and Minute Dropdowns
+        tk.Label(self.root, text="Hour:").grid(row=1, column=0, padx=5, pady=5)
+        self.hour_var = tk.StringVar()
+        self.hour_dropdown = ttk.Combobox(self.root, textvariable=self.hour_var, values=[f"{i:02d}" for i in range(24)], state="readonly")
+        self.hour_dropdown.grid(row=1, column=1, padx=5, pady=5)
+
+        tk.Label(self.root, text="Minute:").grid(row=2, column=0, padx=5, pady=5)
+        self.minute_var = tk.StringVar()
+        self.minute_dropdown = ttk.Combobox(self.root, textvariable=self.minute_var, values=[f"{i:02d}" for i in range(60)], state="readonly")
+        self.minute_dropdown.grid(row=2, column=1, padx=5, pady=5)
 
         # Notes Label and Entry
-        tk.Label(self.root, text="Notes:").grid(row=2, column=0, padx=5, pady=5)
+        tk.Label(self.root, text="Notes:").grid(row=3, column=0, padx=5, pady=5)
         self.notes_entry = tk.Entry(self.root)
-        self.notes_entry.grid(row=2, column=1, padx=5, pady=5)
+        self.notes_entry.grid(row=3, column=1, padx=5, pady=5)
+
+        # Event Type Buttons
+        tk.Button(self.root, text="Log Pee", command=lambda: self.log_event("pee")).grid(row=4, column=0, padx=5, pady=5)
+        tk.Button(self.root, text="Log Poop", command=lambda: self.log_event("poop")).grid(row=4, column=1, padx=5, pady=5)
 
         # View Logs Button
-        tk.Button(self.root, text="View Logs", command=self.view_logs).grid(row=3, column=0, columnspan=2, padx=5, pady=5)
+        tk.Button(self.root, text="View Logs", command=self.view_logs).grid(row=5, column=0, columnspan=2, padx=5, pady=5)
 
         # Analyze Patterns Button
-        tk.Button(self.root, text="Analyze Patterns", command=self.analyze_patterns).grid(row=4, column=0, columnspan=2, padx=5, pady=5)
+        tk.Button(self.root, text="Analyze Patterns", command=self.analyze_patterns).grid(row=6, column=0, columnspan=2, padx=5, pady=5)
 
     def log_event(self, event_type):
         """Log a potty event for a dog."""
-        dog_name = self.dog_name_entry.get().strip()
+        dog_name = self.dog_name_var.get()
         notes = self.notes_entry.get().strip()
+        hour = self.hour_var.get()
+        minute = self.minute_var.get()
 
         if not dog_name:
-            messagebox.showerror("Error", "Dog name is required.")
+            messagebox.showerror("Error", "Please select a dog name.")
+            return
+        if not hour or not minute:
+            messagebox.showerror("Error", "Please select both hour and minute.")
             return
 
-        # Ask user for the time of the event
-        time_str = simpledialog.askstring("Input Time", "Enter the time of the event (HH:MM):")
         try:
-            if time_str:
-                # Combine current date with user-provided time
-                current_date = datetime.datetime.now().date()
-                event_time = datetime.datetime.strptime(f"{current_date} {time_str}", "%Y-%m-%d %H:%M")
-            else:
-                event_time = datetime.datetime.now()
+            # Combine current date with user-selected time
+            current_date = datetime.datetime.now().date()
+            event_time = datetime.datetime.strptime(f"{current_date} {hour}:{minute}", "%Y-%m-%d %H:%M")
         except ValueError:
-            messagebox.showerror("Error", "Invalid time format. Please use HH:MM.")
+            messagebox.showerror("Error", "Invalid time format.")
             return
 
         event = {
@@ -75,7 +88,7 @@ class PupPottyTracker:
 
     def view_logs(self):
         """View all potty logs."""
-        dog_name = self.dog_name_entry.get().strip()
+        dog_name = self.dog_name_var.get()
 
         filtered_logs = [log for log in self.logs if not dog_name or log["dog_name"] == dog_name]
 
@@ -97,7 +110,7 @@ class PupPottyTracker:
 
     def analyze_patterns(self):
         """Analyze potty patterns for a specific dog."""
-        dog_name = self.dog_name_entry.get().strip()
+        dog_name = self.dog_name_var.get()
 
         if not dog_name:
             messagebox.showerror("Error", "Dog name is required for pattern analysis.")
